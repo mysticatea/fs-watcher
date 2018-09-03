@@ -4,7 +4,7 @@
  */
 import { PollingDirectoryWatcher } from "./internal/polling-directory-watcher"
 import { RegularDirectoryWatcher } from "./internal/regular-directory-watcher"
-import { DirectoryWatcher } from "./directory-watcher"
+import { Watcher } from "./watcher"
 
 /**
  * Start to watch a given directory to know changes.
@@ -33,7 +33,7 @@ import { DirectoryWatcher } from "./directory-watcher"
 export async function watchDir(
     dirPath: string,
     options?: watchDir.Options,
-): Promise<DirectoryWatcher> {
+): Promise<Watcher> {
     const interval = options && options.pollingInterval
     const watcher =
         typeof interval === "number"

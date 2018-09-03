@@ -8,9 +8,7 @@ import { FileEvent } from "./file-event"
 /**
  * The watcher which notifies events of the files in a directory.
  */
-export interface DirectoryWatcher extends NodeJS.EventEmitter {
-    /** The path to the directory this watcher is watching. */
-    readonly path: string
+export interface Watcher extends NodeJS.EventEmitter {
     /** The stats for each file this watcher is handling. */
     readonly stats: Map<string, fs.Stats>
 

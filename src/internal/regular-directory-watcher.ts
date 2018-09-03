@@ -7,7 +7,7 @@ import path from "path"
 import debounce from "debounce"
 import debug from "debug"
 import fs from "fs"
-import { DirectoryWatcher } from "../directory-watcher"
+import { Watcher } from "../watcher"
 import { getFiles, getStats } from "./utils"
 
 const log = debug("fs-watcher:regular-directory-watcher")
@@ -28,8 +28,7 @@ interface Operation {
  * The regular implementation of DirectoryWatcher.
  * This is using `fs.watch()` function.
  */
-export class RegularDirectoryWatcher extends EventEmitter
-    implements DirectoryWatcher {
+export class RegularDirectoryWatcher extends EventEmitter implements Watcher {
     public readonly path: string
     public readonly ready: Promise<void>
     public readonly stats: Map<string, fs.Stats> = new Map()

@@ -5,7 +5,7 @@
 import assert from "assert"
 import path from "path"
 import fs from "fs-extra"
-import { DirectoryWatcher, FileEvent, watchDir } from "../src"
+import { Watcher, FileEvent, watchDir } from "../src"
 import { delay } from "./internal/utils"
 
 type FileEvents = {
@@ -18,7 +18,7 @@ const TIMEOUT = 700
 
 /** The event listener for the watcher. */
 class Tester {
-    private _watcher: DirectoryWatcher
+    private _watcher: Watcher
     private _events: {
         type: "add" | "remove" | "change"
         event: FileEvent
@@ -31,7 +31,7 @@ class Tester {
     /**
      * @param watcher The watcher to listen.
      */
-    public constructor(watcher: DirectoryWatcher) {
+    public constructor(watcher: Watcher) {
         this._watcher = watcher
         watcher.on("add", this._onEvent.bind(this, "add"))
         watcher.on("remove", this._onEvent.bind(this, "remove"))
@@ -1055,7 +1055,7 @@ function verify(options: watchDir.Options): void {
 
     describe("when it tried to watch a non-existing directory,", () => {
         const dirPath = path.join(WORKSPACE_PATH, "non-existing")
-        let watcher: DirectoryWatcher | null = null
+        let watcher: Watcher | null = null
 
         before(async () => {
             await fs.remove(WORKSPACE_PATH)

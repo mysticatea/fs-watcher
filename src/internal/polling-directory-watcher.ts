@@ -6,7 +6,7 @@ import { EventEmitter } from "events"
 import path from "path"
 import debug from "debug"
 import fs from "fs"
-import { DirectoryWatcher } from "../directory-watcher"
+import { Watcher } from "../watcher"
 import { getFiles, getStats } from "./utils"
 
 const log = debug("fs-watcher:polling-directory-watcher")
@@ -22,8 +22,7 @@ enum State {
  * The polling implementation of DirectoryWatcher.
  * This is using `fs.watchFile()` function.
  */
-export class PollingDirectoryWatcher extends EventEmitter
-    implements DirectoryWatcher {
+export class PollingDirectoryWatcher extends EventEmitter implements Watcher {
     public readonly path: string
     public readonly pollingInterval: number
     public readonly ready: Promise<void>
