@@ -1,0 +1,7 @@
+/.nyc_output
+/.temp
+/.test-ws
+/coverage
+/node_modules
+/index.*
+/test.*
