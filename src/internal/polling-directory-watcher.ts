@@ -3,11 +3,11 @@
  * See LICENSE file in root directory for full license.
  */
 import { EventEmitter } from "events"
+import fs from "fs"
 import path from "path"
 import debug from "debug"
-import fs from "fs"
 import { Watcher } from "../watcher"
-import { getFiles, getStats } from "./utils"
+import { getFiles, getStatsWithoutError } from "./utils/fs"
 
 const log = debug("fs-watcher:polling-directory-watcher")
 
@@ -19,8 +19,7 @@ enum State {
 }
 
 /**
- * The polling implementation of DirectoryWatcher.
- * This is using `fs.watchFile()` function.
+ * The watcher implementation which uses `fs.watchFile()` API to watch a directory.
  */
 export class PollingDirectoryWatcher extends EventEmitter implements Watcher {
     public readonly path: string
@@ -69,7 +68,7 @@ export class PollingDirectoryWatcher extends EventEmitter implements Watcher {
     private async _open(): Promise<void> {
         log("PollingDirectoryWatcher#_open", this.path)
         try {
-            await this._onChange(await getStats(this.path))
+            await this._onChange(await getStatsWithoutError(this.path))
             this._watchFile(this.path, this._onChange.bind(this))
             this._state = State.Alive
         } catch (error) {
@@ -151,7 +150,7 @@ export class PollingDirectoryWatcher extends EventEmitter implements Watcher {
         log("PollingDirectoryWatcher#_startWatchingChild", filePath)
 
         // Get the initial stats.
-        const stat = await getStats(filePath)
+        const stat = await getStatsWithoutError(filePath)
         if (stat == null || this._state === State.Disposed) {
             return
         }

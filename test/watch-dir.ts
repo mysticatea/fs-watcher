@@ -5,101 +5,8 @@
 import assert from "assert"
 import path from "path"
 import fs from "fs-extra"
-import { Watcher, FileEvent, watchDir } from "../src"
-import { delay } from "./internal/utils"
-
-type FileEvents = {
-    add: FileEvent[]
-    remove: FileEvent[]
-    change: FileEvent[]
-}
-
-const TIMEOUT = 700
-
-/** The event listener for the watcher. */
-class Tester {
-    private _watcher: Watcher
-    private _events: {
-        type: "add" | "remove" | "change"
-        event: FileEvent
-    }[] = []
-    private _waitings: {
-        type: "add" | "remove" | "change"
-        resolve: (event: FileEvent) => void
-    }[] = []
-
-    /**
-     * @param watcher The watcher to listen.
-     */
-    public constructor(watcher: Watcher) {
-        this._watcher = watcher
-        watcher.on("add", this._onEvent.bind(this, "add"))
-        watcher.on("remove", this._onEvent.bind(this, "remove"))
-        watcher.on("change", this._onEvent.bind(this, "change"))
-        watcher.on("error", error => {
-            throw error
-        })
-    }
-
-    /**
-     * Close the watcher.
-     */
-    public close(): Promise<void> {
-        return this._watcher.close()
-    }
-
-    /**
-     * Wait for a given event.
-     * @param type The event type to wait for.
-     */
-    public waitFor(type: "add" | "remove" | "change"): Promise<FileEvent> {
-        return new Promise<FileEvent>(resolve => {
-            const waiting = {
-                type,
-                resolve: (event: FileEvent): void => {
-                    const i = this._waitings.indexOf(waiting)
-                    if (i >= 0) {
-                        this._waitings.splice(i, 1)
-                    }
-                    resolve(event)
-                },
-            }
-            setTimeout(waiting.resolve, TIMEOUT)
-
-            this._waitings.push(waiting)
-        })
-    }
-
-    /**
-     * Count the number of events.
-     */
-    public async getEvents(events: FileEvents): Promise<void> {
-        await delay(700)
-
-        events.add.length = 0
-        events.remove.length = 0
-        events.change.length = 0
-
-        for (const { type, event } of this._events) {
-            events[type].push(event)
-        }
-    }
-
-    /**
-     * The callback which will be called when the watcher notified events.
-     * @param type The type of the notified event.
-     * @param event The notified event.
-     */
-    private _onEvent(type: "add" | "remove" | "change", event: FileEvent) {
-        this._events.push({ type, event })
-
-        for (const waiting of Array.from(this._waitings)) {
-            if (waiting.type === type) {
-                waiting.resolve(event)
-            }
-        }
-    }
-}
+import { Watcher, watchDir } from "../src"
+import { Tester } from "./internal/utils"
 
 /** Verify. */
 function verify(options: watchDir.Options): void {
@@ -122,9 +29,13 @@ function verify(options: watchDir.Options): void {
             await watcher.close()
         })
 
-        describe("when a file added,", () => {
+        describe("when a file is added,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -162,9 +73,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory added,", () => {
+        describe("when a directory is added,", () => {
             const dirPath = path.join(ROOT_DIR, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -202,9 +117,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file removed,", () => {
+        describe("when a file is removed,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -245,9 +164,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory removed,", () => {
+        describe("when a directory is removed,", () => {
             const dirPath = path.join(ROOT_DIR, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -288,9 +211,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file changed,", () => {
+        describe("when a file is changed,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -331,9 +258,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory changed,", () => {
+        describe("when a directory is changed,", () => {
             const dirPath = path.join(ROOT_DIR, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -370,9 +301,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file added into the parent directory,", () => {
+        describe("when a file is added into the parent directory,", () => {
             const filePath = path.join(WORKSPACE_PATH, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -406,9 +341,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory added into the parent directory,", () => {
+        describe("when a directory is added into the parent directory,", () => {
             const dirPath = path.join(WORKSPACE_PATH, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -442,9 +381,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file removed from the parent directory,", () => {
+        describe("when a file is removed from the parent directory,", () => {
             const filePath = path.join(WORKSPACE_PATH, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -481,9 +424,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory removed from the parent directory,", () => {
+        describe("when a directory is removed from the parent directory,", () => {
             const dirPath = path.join(WORKSPACE_PATH, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -520,9 +467,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file changed on the parent directory,", () => {
+        describe("when a file is changed on the parent directory,", () => {
             const filePath = path.join(WORKSPACE_PATH, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -560,9 +511,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory changed on the parent directory,", () => {
+        describe("when a directory is changed on the parent directory,", () => {
             const dirPath = path.join(WORKSPACE_PATH, "hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -599,9 +554,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file added into a child directory,", () => {
+        describe("when a file is added into a child directory,", () => {
             const filePath = path.join(ROOT_DIR, "child/hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -638,9 +597,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory added into a child directory,", () => {
+        describe("when a directory is added into a child directory,", () => {
             const dirPath = path.join(ROOT_DIR, "child/hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -677,9 +640,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file removed from a child directory,", () => {
+        describe("when a file is removed from a child directory,", () => {
             const filePath = path.join(ROOT_DIR, "child/hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -717,9 +684,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory removed from a child directory,", () => {
+        describe("when a directory is removed from a child directory,", () => {
             const dirPath = path.join(ROOT_DIR, "child/hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -757,9 +728,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file changed on a child directory,", () => {
+        describe("when a file is changed on a child directory,", () => {
             const filePath = path.join(ROOT_DIR, "child/hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -797,9 +772,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a directory changed on a child directory,", () => {
+        describe("when a directory is changed on a child directory,", () => {
             const dirPath = path.join(ROOT_DIR, "child/hello")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -837,9 +816,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file added then removed immediately,", () => {
+        describe("when a file is added then is removed immediately,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -874,9 +857,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file added then changed immediately,", () => {
+        describe("when a file is added then is changed immediately,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -914,9 +901,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file removed then added immediately,", () => {
+        describe("when a file is removed then is added immediately,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -958,9 +949,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file changed then removed immediately,", () => {
+        describe("when a file is changed then is removed immediately,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -1008,9 +1003,13 @@ function verify(options: watchDir.Options): void {
             })
         })
 
-        describe("when a file changed then changed immediately,", () => {
+        describe("when a file is changed then is changed immediately,", () => {
             const filePath = path.join(ROOT_DIR, "hello.txt")
-            const events: FileEvents = { add: [], remove: [], change: [] }
+            const events: Tester.FileEvents = {
+                add: [],
+                remove: [],
+                change: [],
+            }
 
             before(async () => {
                 await fs.remove(WORKSPACE_PATH)
@@ -1073,6 +1072,33 @@ function verify(options: watchDir.Options): void {
                 watcher = await watchDir(dirPath, options)
             } catch (error) {
                 assert.strictEqual(error.code, "ENOENT")
+                return
+            }
+            assert.fail("should fail.")
+        })
+    })
+
+    describe("when it tried to watch a non directory,", () => {
+        const filePath = path.join(WORKSPACE_PATH, "hello.txt")
+        let watcher: Watcher | null = null
+
+        before(async () => {
+            await fs.remove(WORKSPACE_PATH)
+            await fs.ensureDir(WORKSPACE_PATH)
+            await fs.writeFile(filePath, "Hello")
+        })
+        after(async () => {
+            if (watcher) {
+                await watcher.close()
+                watcher = null
+            }
+        })
+
+        it("should throw ENOTDIR error.", async () => {
+            try {
+                watcher = await watchDir(filePath, options)
+            } catch (error) {
+                assert.strictEqual(error.code, "ENOTDIR")
                 return
             }
             assert.fail("should fail.")

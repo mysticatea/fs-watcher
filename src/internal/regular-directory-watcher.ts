@@ -3,12 +3,12 @@
  * See LICENSE file in root directory for full license.
  */
 import { EventEmitter } from "events"
+import fs from "fs"
 import path from "path"
 import debounce from "debounce"
 import debug from "debug"
-import fs from "fs"
 import { Watcher } from "../watcher"
-import { getFiles, getStats } from "./utils"
+import { getFiles, getStatsWithoutError } from "./utils/fs"
 
 const log = debug("fs-watcher:regular-directory-watcher")
 const DEBOUNCE_INTERVAL = 200
@@ -25,8 +25,7 @@ interface Operation {
 }
 
 /**
- * The regular implementation of DirectoryWatcher.
- * This is using `fs.watch()` function.
+ * The watcher implementation which uses `fs.watch()` API to watch a directory.
  */
 export class RegularDirectoryWatcher extends EventEmitter implements Watcher {
     public readonly path: string
@@ -110,7 +109,7 @@ export class RegularDirectoryWatcher extends EventEmitter implements Watcher {
         log("RegularDirectoryWatcher#_onChange", this.path, eventType, filename)
 
         const filePath = path.join(this.path, String(filename))
-        const currStat = await getStats(filePath)
+        const currStat = await getStatsWithoutError(filePath)
         const prevStat = this.stats.get(filePath)
 
         // @ts-ignore
