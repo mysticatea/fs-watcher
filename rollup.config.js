@@ -7,6 +7,11 @@ import resolve from "rollup-plugin-node-resolve"
 import sourcemaps from "rollup-plugin-sourcemaps"
 
 const pkg = require("./package.json")
+const banner = `/**
+ * @author Toru Nagashima <https://github.com/mysticatea>
+ * See LICENSE file in root directory for full license.
+ */
+`
 
 export default {
     input: ".temp/src/index.js",
@@ -15,21 +20,13 @@ export default {
             file: "index.mjs",
             format: "es",
             sourcemap: true,
-            sourcemapFile: "index.mjs.map",
-            banner: `/**
- * @author Toru Nagashima <https://github.com/mysticatea>
- * See LICENSE file in root directory for full license.
- */`,
+            banner,
         },
         {
             file: "index.js",
             format: "cjs",
             sourcemap: true,
-            sourcemapFile: "index.js.map",
-            banner: `/**
- * @author Toru Nagashima <https://github.com/mysticatea>
- * See LICENSE file in root directory for full license.
- */`,
+            banner,
         },
     ],
     plugins: [
@@ -40,11 +37,7 @@ export default {
             presets: [
                 [
                     "@babel/preset-env",
-                    {
-                        debug: true,
-                        modules: false,
-                        targets: { node: "6.5.0" },
-                    },
+                    { modules: false, targets: { node: "6.5.0" } },
                 ],
             ],
         }),

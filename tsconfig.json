@@ -1,39 +1,26 @@
 {
-    "compileOnSave": true,
     "compilerOptions": {
-        "allowJs": false,
         "allowSyntheticDefaultImports": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "baseUrl": ".",
-        "checkJs": false,
-        "declaration": true,
         "esModuleInterop": true,
-        "inlineSources": true,
         "lib": [
             "es2015"
         ],
         "module": "commonjs",
         "moduleResolution": "node",
         "newLine": "LF",
-        "noEmitOnError": true,
         "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "outDir": ".temp",
-        "paths": {
-            "*": ["typings/*"]
-        },
-        "pretty": true,
-        "removeComments": true,
         "sourceMap": true,
-        "sourceRoot": "src",
         "strict": true,
         "target": "es2015"
     },
     "include": [
-        "src/**/*.ts",
-        "test/**/*.ts"
+        "scripts/*.ts",
+        "src/*.ts",
+        "test/*.ts"
     ]
 }
