@@ -10,7 +10,7 @@ import { FileEvent } from "./file-event"
  */
 export interface Watcher extends NodeJS.EventEmitter {
     /** The stats for each file this watcher is handling. */
-    readonly stats: Map<string, fs.Stats>
+    readonly stats: ReadonlyMap<string, fs.Stats>
 
     /** Stop watching. */
     close(): Promise<void>
