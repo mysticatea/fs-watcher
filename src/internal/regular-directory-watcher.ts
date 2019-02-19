@@ -43,6 +43,7 @@ export class RegularDirectoryWatcher extends EventEmitter implements Watcher {
         super()
 
         this.path = path.resolve(dirPath)
+        this._consumeQueue = debounce(this._consumeQueue, DEBOUNCE_INTERVAL)
         this._watcher = fs
             .watch(this.path)
             .on("change", this._onChange.bind(this))
@@ -219,10 +220,3 @@ export class RegularDirectoryWatcher extends EventEmitter implements Watcher {
         }
     }
 }
-
-// @ts-ignore
-RegularDirectoryWatcher.prototype._consumeQueue = debounce(
-    // @ts-ignore
-    RegularDirectoryWatcher.prototype._consumeQueue,
-    DEBOUNCE_INTERVAL,
-)
