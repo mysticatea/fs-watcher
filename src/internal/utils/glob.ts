@@ -127,8 +127,8 @@ function normalizePathPosix(originalPath: string): string {
  * @returns The normalized path.
  */
 function normalizePathWin32(originalPath: string): string {
-    const absoluteLikePath = originalPath.replace(/\\/g, "/")
-    const absolutePath = /^[a-z]:/i.test(absoluteLikePath)
+    const absoluteLikePath = originalPath.replace(/\\/gu, "/")
+    const absolutePath = /^[a-z]:/iu.test(absoluteLikePath)
         ? `/${absoluteLikePath}`
         : absoluteLikePath
 
@@ -153,7 +153,7 @@ function alwaysFalse(): boolean {
  * The predicate of the file matcher.
  */
 function isMatch1(
-    this: { includes: Array<(str: string) => boolean> },
+    this: { includes: ((str: string) => boolean)[] },
     filePath: string,
 ): boolean {
     const relPath = normalizePath(filePath)
@@ -170,8 +170,8 @@ function isMatch1(
  */
 function isMatch2(
     this: {
-        includes: Array<(str: string) => boolean>
-        excludes: Array<(str: string) => boolean>
+        includes: ((str: string) => boolean)[]
+        excludes: ((str: string) => boolean)[]
     },
     filePath: string,
 ): boolean {
@@ -233,7 +233,7 @@ export function createSkipMatcher(
     if (negativePatterns.length === 0) {
         return alwaysFalse
     }
-    const includes: Array<(str: string) => boolean> = []
+    const includes: ((str: string) => boolean)[] = []
 
     for (const pattern of negativePatterns) {
         if (pattern.endsWith("/**") && pattern !== "/**") {

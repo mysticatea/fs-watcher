@@ -2,7 +2,7 @@
  * @author Toru Nagashima <https://github.com/mysticatea>
  * See LICENSE file in root directory for full license.
  */
-import fs from "fs"
+import { Stats } from "fs"
 import { FileEvent } from "./file-event"
 
 /**
@@ -10,7 +10,7 @@ import { FileEvent } from "./file-event"
  */
 export interface Watcher extends NodeJS.EventEmitter {
     /** The stats for each file this watcher is handling. */
-    readonly stats: ReadonlyMap<string, fs.Stats>
+    readonly stats: ReadonlyMap<string, Stats>
 
     /** Stop watching. */
     close(): Promise<void>
